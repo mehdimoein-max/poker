@@ -5,10 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بازی برنامه‌ریزی پوکر سالاد میوه - نسخه آنلاین</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- HTML2Canvas for image saving -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #374151;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            flex-direction: column;
+            padding: 2rem 1rem;
+        }
+        .container {
+            background-color: #fff;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            max-width: 95%;
+            width: 800px;
+        }
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+        .tab-button.active {
+            color: #10b981;
+            border-bottom-color: #10b981;
+        }
+        .tab-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .button-primary {
+            background-color: #10b981;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .button-primary:hover {
+            background-color: #059669;
+        }
+        .alert-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f87171;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+        .hidden {
+            display: none;
+        }
+        input {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            margin-top: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+        }
+    </style>
 </head>
 <body>
 
@@ -29,51 +111,57 @@
         
         <div class="mb-4">
             <p>برای شروع، نام خود و نام گروه را وارد کنید.</p>
-            <input type="text" id="userName" placeholder="نام شما" class="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-            <input type="text" id="groupName" placeholder="نام گروه" class="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            <input type="text" id="userName" placeholder="نام شما">
+            <input type="text" id="groupName" placeholder="نام گروه">
         </div>
         
-        <div id="onlineUsers" class="online-users hidden">
-            <h3 class="font-bold">اعضای آنلاین:</h3>
-            <div id="usersList" class="user-list"></div>
-            <button id="refreshUsers" class="refresh-btn">بروزرسانی لیست</button>
-        </div>
-        
-        <button id="startButton" class="button-primary w-full mt-4">
+        <button id="startButton" class="button-primary">
             شروع بازی
         </button>
     </div>
-
-    <div id="tab-content-scenario" class="tab-content hidden">
-        <p id="displayGroupName" class="mb-4 text-gray-500"></p>
-        <h1 class="text-3xl font-bold mb-2">سناریوی بازی</h1>
-        <p class="mb-6 text-gray-700 leading-relaxed text-right">
-            در این بازی، شما و تیم‌تان باید با هم یک سالاد میوه درست کنید. هر میوه یک تسک یا "استوری" است. برای درست کردن سالاد، باید با هم برای هر میوه امتیاز داستان (Story Point) تعیین کنید. تیم شما باید تلاش لازم را تخمین زده و برای هر میوه توافق کند که چقدر استوری پوینت دارد.
-        </p>
-        
-        <div class="bg-yellow-50 p-4 rounded-xl mb-4">
-            <h3 class="text-xl font-bold mb-4 text-center">لطفاً ۱۰ میوه را برای سالاد خود انتخاب کنید:</h3>
-            <div class="fruit-selection" id="fruitSelection">
-                <!-- میوه‌ها برای انتخاب در اینجا نمایش داده می‌شوند -->
-            </div>
-            <p id="selectionCount" class="text-center mt-4 font-bold">0 میوه انتخاب شده از ۱۰ میوه</p>
-        </div>
-        
-        <div class="navigation-buttons">
-            <button id="nextToInfo" class="button-secondary" disabled>
-                ادامه
-            </button>
-        </div>
-    </div>
-    
-    <!-- سایر بخش‌های برنامه -->
-    <!-- ... -->
 
     <div id="alertMessage" class="alert-message">
         لطفا به همه میوه‌ها امتیاز بدهید.
     </div>
 </div>
 
-<script src="js/script.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startButton = document.getElementById('startButton');
+    const userNameInput = document.getElementById('userName');
+    const groupNameInput = document.getElementById('groupName');
+    const alertMessage = document.getElementById('alertMessage');
+
+    // تابع نمایش پیغام خطا
+    function showAlertMessage() {
+        alertMessage.style.display = 'block';
+        setTimeout(() => {
+            alertMessage.style.display = 'none';
+        }, 3000);
+    }
+
+    // رویداد کلیک روی دکمه شروع
+    startButton.addEventListener('click', function() {
+        const userName = userNameInput.value.trim();
+        const groupName = groupNameInput.value.trim();
+        
+        if (!userName || !groupName) {
+            showAlertMessage();
+            return;
+        }
+
+        // ذخیره اطلاعات در localStorage
+        localStorage.setItem('userName', userName);
+        localStorage.setItem('groupName', groupName);
+        
+        // نمایش پیام موفقیت
+        alert('اطلاعات ذخیره شد! نام: ' + userName + '، گروه: ' + groupName);
+        
+        // در اینجا می‌توانید به تب بعدی بروید
+        // switchTab('scenario');
+    });
+});
+</script>
+
 </body>
 </html>
