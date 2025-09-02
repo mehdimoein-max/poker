@@ -3,12 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بازی برنامه‌ریزی پوکر سالاد میوه - نسخه آنلاین</title>
+    <title>بازی برنامه‌ریزی پوکر سالاد میوه</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- HTML2Canvas for image saving -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #374151;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            flex-direction: column;
+            padding: 2rem 1rem;
+        }
+        .container {
+            background-color: #fff;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            max-width: 95%;
+            width: 800px;
+        }
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+        .tab-button.active {
+            color: #10b981;
+            border-bottom-color: #10b981;
+        }
+        .tab-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+        .fruit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .fruit-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border: 2px solid transparent;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .fruit-item.unvoted {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+        .fruit-emoji {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+        }
+        .story-points-select {
+            margin-top: 0.75rem;
+            width: 80px;
+            text-align: center;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            padding: 0.5rem;
+            background-color: white;
+        }
+        .hidden {
+            display: none;
+        }
+        .results-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #f0fdf4;
+            border-radius: 1rem;
+            border: 1px solid #d1fae5;
+        }
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .card {
+            background-color: #4b5563;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            width: 60px;
+            height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .result-card {
+            background-color: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .total-points {
+            background-color: #10b981;
+            color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-top: 2rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .alert-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f87171;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+        .button-primary {
+            background-color: #10b981;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .button-primary:hover {
+            background-color: #059669;
+        }
+        .button-secondary {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .button-secondary:hover {
+            background-color: #2563eb;
+        }
+        .button-back {
+            background-color: #6b7280;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .button-back:hover {
+            background-color: #4b5563;
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .summary-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        .pmpiran-logo {
+            width: 200px;
+            height: auto;
+            margin: 1rem auto;
+            display: block;
+        }
+        .website-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background-color: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .website-link:hover {
+            background-color: #2563eb;
+        }
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .social-link.instagram {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        }
+        .social-link.telegram {
+            background-color: #0088cc;
+        }
+        .social-link.linkedin {
+            background-color: #0077b5;
+        }
+        .social-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .founder-linkedin {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .fruit-selection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+        .fruit-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .fruit-option.selected {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .fruit-option:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .selection-emoji {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
 </head>
 <body>
 
@@ -26,20 +317,9 @@
     <!-- Tab Content -->
     <div id="tab-content-enter" class="tab-content">
         <h1 class="text-3xl font-bold mb-6">به بازی برنامه‌ریزی پوکر خوش آمدید!</h1>
-        
-        <div class="mb-4">
-            <p>برای شروع، نام خود و نام گروه را وارد کنید.</p>
-            <input type="text" id="userName" placeholder="نام شما" class="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-            <input type="text" id="groupName" placeholder="نام گروه" class="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-        </div>
-        
-        <div id="onlineUsers" class="online-users hidden">
-            <h3 class="font-bold">اعضای آنلاین:</h3>
-            <div id="usersList" class="user-list"></div>
-            <button id="refreshUsers" class="refresh-btn">بروزرسانی لیست</button>
-        </div>
-        
-        <button id="startButton" class="button-primary w-full mt-4">
+        <p class="mb-4">برای شروع، نام گروه خود را وارد کنید.</p>
+        <input type="text" id="groupName" placeholder="نام گروه" class="w-full px-4 py-2 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+        <button id="startButton" class="button-primary w-full">
             شروع بازی
         </button>
     </div>
@@ -65,22 +345,192 @@
             </button>
         </div>
     </div>
-
-    <!-- بقیه تب‌ها -->
+    
     <div id="tab-content-info" class="tab-content hidden">
-        <!-- محتوای تب اطلاعات -->
+        <p id="displayGroupName2" class="mb-4 text-gray-500"></p>
+        <h1 class="text-3xl font-bold mb-2">برنامه‌ریزی پوکر</h1>
+        <div class="mb-6 text-right">
+            <h2 class="text-xl font-bold mb-2">🔹 تعریف استوری پوینت</h2>
+            <p class="text-gray-700 leading-relaxed">
+                استوری پوینت یک واحد نسبی برای اندازه‌گیری حجم کار هست.
+                <br>
+                «کاری که ۱۰ استوری پوینت هست، تقریباً ده برابر انرژی و تلاش بیشتری از کاری می‌خواد که ۱ استوری پوینت هست.»
+                <br>
+                استوری پوینت زمان دقیق نیست؛ بلکه ترکیبیه از:
+                <br>
+                <strong>پیچیدگی کار</strong> (سختی حل مسئله)
+                <br>
+                <strong>ریسک و عدم قطعیت</strong> (میزان ناشناخته بودن)
+                <br>
+                <strong>اندازه یا حجم کار</strong>
+            </p>
+        </div>
+        <div class="mb-6 text-right">
+            <h2 class="text-xl font-bold mb-2">🔹 چرا از استوری پوینت استفاده می‌کنیم؟</h2>
+            <p class="text-gray-700 leading-relaxed">
+                چون تخمین ساعت معمولاً دقیق درنمیاد و باعث بحث و کشمکش می‌شه.
+                <br>
+                استوری پوینت باعث می‌شه تیم‌ها به صورت نسبی آیتم‌ها رو با هم مقایسه کنن.
+                <br>
+                مثلا بگن: «کار A حدوداً دو برابر سخت‌تر از کار B هست» → پس اگر B = 3 پوینت، A = 6 پوینت.
+            </p>
+        </div>
+        <div class="mb-6 text-right">
+            <h2 class="text-xl font-bold mb-2">🔹 مقیاس رایج</h2>
+            <p class="text-gray-700 leading-relaxed">
+                بیشتر تیم‌ها از سری فیبوناچی استفاده می‌کنن:
+            </p>
+            <div class="cards-container">
+                <div class="card">1</div>
+                <div class="card">2</div>
+                <div class="card">3</div>
+                <div class="card">5</div>
+                <div class="card">8</div>
+                <div class="card">13</div>
+                <div class="card">20</div>
+                <div class="card">40</div>
+                <div class="card">100</div>
+                <div class="card">200</div>
+            </div>
+            <p class="text-gray-700 leading-relaxed mt-2">
+                (هر چه عدد بالاتر می‌ره، عدم قطعیت بیشتره.)
+            </p>
+        </div>
+        
+        <div class="navigation-buttons">
+            <button id="backToScenario" class="button-back">
+                بازگشت
+            </button>
+            <button id="nextToVote" class="button-secondary">
+                شروع رأی‌گیری
+            </button>
+        </div>
     </div>
 
     <div id="tab-content-vote" class="tab-content hidden">
-        <!-- محتوای تب امتیازدهی -->
+        <p id="displayGroupName3" class="mb-4 text-gray-500"></p>
+        <h2 class="text-2xl font-bold mb-6">استوری: درست کردن سالاد میوه</h2>
+        <p class="mb-4">استوری پوینت هر میوه را در کادر مربوطه انتخاب کنید.</p>
+        <div class="fruit-grid" id="fruitGrid">
+            <!-- میوه‌های انتخاب شده و فیلدهای امتیاز آن‌ها اینجا اضافه می‌شوند -->
+        </div>
+        
+        <div class="navigation-buttons">
+            <button id="backToInfo" class="button-back">
+                بازگشت
+            </button>
+            <button id="submitVotes" class="button-primary">
+                ثبت رأی‌ها و مشاهده نتایج
+            </button>
+        </div>
+
+        <div id="resultsSection" class="results-section hidden">
+            <h2 class="text-2xl font-bold mb-6">نتایج اولیه رأی‌گیری</h2>
+            <div id="resultsContainer" class="results-grid">
+                <!-- نتایج اینجا نمایش داده می‌شوند -->
+            </div>
+        </div>
     </div>
 
     <div id="tab-content-results" class="tab-content hidden">
-        <!-- محتوای تب نتایج -->
+        <p id="displayGroupName4" class="mb-4 text-gray-500"></p>
+        <h2 class="text-2xl font-bold mb-6">نتایج رأی‌گیری</h2>
+        
+        <div class="summary-card">
+            <h3 class="text-xl font-bold">مجموع امتیازات تیم</h3>
+            <div id="totalPoints" class="summary-value">0</div>
+            <p>امتیاز کل استوری پوینت‌های سالاد میوه</p>
+        </div>
+        
+        <div id="finalResultsContainer" class="results-grid mt-6">
+            <!-- نتایج نهایی اینجا نمایش داده می‌شوند -->
+        </div>
+        
+        <div class="mt-8 text-right p-4 bg-gray-100 rounded-lg">
+            <h3 class="text-xl font-bold mb-2">مفهوم ولاسیتی (Velocity)</h3>
+            <p class="text-gray-700 leading-relaxed">
+                با توجه به امتیازهایی که برای هر میوه دادید، اگر تیم شما یک روز کامل فقط سالاد درست کند، چند سالاد میوه می‌تواند درست کند؟
+            </p>
+            <div class="mt-4 flex flex-col sm:flex-row items-center justify-end">
+                <label for="velocityInput" class="text-gray-700 sm:ml-4 mb-2 sm:mb-0">تعداد سالاد:</label>
+                <input type="number" id="velocityInput" placeholder="تعداد" class="w-full sm:w-24 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-left">
+            </div>
+        </div>
+        
+        <div class="navigation-buttons">
+            <button id="backToVote" class="button-back">
+                بازگشت به رأی‌گیری
+            </button>
+            <button id="saveFinalImageButton" class="button-primary">
+                ذخیره نتایج نهایی
+            </button>
+        </div>
     </div>
 
     <div id="tab-content-pmpiran" class="tab-content hidden">
-        <!-- محتوای تب PMPiran -->
+        <h2 class="text-3xl font-bold mb-6">معرفی PMPiran</h2>
+        
+        <div class="bg-blue-50 p-6 rounded-xl mb-6">
+            <svg class="pmpiran-logo" viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="50" width="400" height="100" rx="10" fill="#3b82f6" />
+                <text x="250" y="115" font-family="Arial" font-size="40" font-weight="bold" fill="white" text-anchor="middle">PMPiran</text>
+                <text x="250" y="160" font-family="Arial" font-size="20" fill="white" text-anchor="middle">مرجع مدیریت پروژه ایران</text>
+            </svg>
+            
+            <p class="text-gray-700 text-right leading-relaxed mb-4">
+                <strong>PMPiran</strong> مرجع تخصصی مدیریت پروژه ایران است که با هدف توسعه و ترویج دانش مدیریت پروژه در ایران فعالیت می‌کند. این پلتفرم با ارائه مطالب آموزشی، منابع تخصصی و ابزارهای کاربردی، به جامعه مدیریت پروژه ایران خدمات ارزشمندی ارائه می‌دهد.
+            </p>
+            
+            <p class="text-gray-700 text-right leading-relaxed mb-4">
+                PMPiran با گردآوری متخصصان و علاقه‌مندان به مدیریت پروژه، فضایی برای تبادل دانش و تجربیات فراهم کرده و با برگزاری دوره‌های آموزشی، وبینارها و رویدادهای تخصصی، به ارتقای سطح دانش مدیریت پروژه در ایران کمک می‌کند.
+            </p>
+            
+            <p class="text-gray-700 text-right leading-relaxed mb-6">
+                بازی برنامه‌ریزی پوکر سالاد میوه نیز یکی از ابزارهای آموزشی ارائه شده توسط PMPiran است که به درک بهتر مفاهیم تخمین و برنامه‌ریزی در مدیریت پروژه کمک می‌کند.
+            </p>
+            
+            <a href="https://pmpiran.com/" target="_blank" class="website-link">
+                بازدید از وبسایت PMPiran
+            </a>
+            
+            <!-- لینک‌های شبکه‌های اجتماعی -->
+            <div class="social-links">
+                <a href="https://www.instagram.com/pmpiran?igsh=MWFsazhjZWU0NjR6Zw==" target="_blank" class="social-link instagram">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="https://t.me/PMPclub" target="_blank" class="social-link telegram">
+                    <i class="fab fa-telegram"></i>
+                </a>
+                <a href="https://www.linkedin.com/company/pmpiran/?viewAsMember=true" target="_blank" class="social-link linkedin">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+            </div>
+
+            <!-- لینکدین مهدی معین -->
+            <div class="founder-linkedin">
+                <h3 class="text-xl font-bold mb-4 text-center">لینکدین مدیر عامل</h3>
+                <div class="flex justify-center">
+                    <a href="https://www.linkedin.com/in/mehdi-moein/" target="_blank" class="social-link linkedin">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-green-50 p-6 rounded-xl text-right">
+            <h3 class="text-xl font-bold mb-4">خدمات اصلی PMPiran</h3>
+            <ul class="list-disc pr-6 text-gray-700 space-y-2">
+                <li>مشاوره حرفه‌ای و آموزش دانش روز مدیریت پروژه</li>
+                <li>مشاوره حرفه‌ای و آموزش دانش روز تحلیل کسب وکار</li>
+                <li>برگزاری رویداد در حوزه مدیریت پروژه، تحلیل کسب‌وکار و چابکی</li>
+            </ul>
+        </div>
+        
+        <div class="navigation-buttons mt-6">
+            <button id="backToEnterFromPmpiran" class="button-back">
+                بازگشت به صفحه اصلی
+            </button>
+        </div>
     </div>
 
     <div id="alertMessage" class="alert-message">
@@ -88,6 +538,358 @@
     </div>
 </div>
 
-<script src="script.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Global variables and elements
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const groupNameInput = document.getElementById('groupName');
+        const startButton = document.getElementById('startButton');
+        const nextToInfoButton = document.getElementById('nextToInfo');
+        const nextToVoteButton = document.getElementById('nextToVote');
+        const submitVotesButton = document.getElementById('submitVotes');
+        const saveFinalImageButton = document.getElementById('saveFinalImageButton');
+        const displayGroupName = document.getElementById('displayGroupName');
+        const displayGroupName2 = document.getElementById('displayGroupName2');
+        const displayGroupName3 = document.getElementById('displayGroupName3');
+        const displayGroupName4 = document.getElementById('displayGroupName4');
+        const fruitGrid = document.getElementById('fruitGrid');
+        const fruitSelection = document.getElementById('fruitSelection');
+        const selectionCount = document.getElementById('selectionCount');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const finalResultsContainer = document.getElementById('finalResultsContainer');
+        const totalPointsElement = document.getElementById('totalPoints');
+        const velocityInput = document.getElementById('velocityInput');
+        const alertMessage = document.getElementById('alertMessage');
+        const resultsSection = document.getElementById('resultsSection');
+        
+        // Navigation buttons
+        const backToScenario = document.getElementById('backToScenario');
+        const backToInfo = document.getElementById('backToInfo');
+        const backToVote = document.getElementById('backToVote');
+        const backToEnterFromPmpiran = document.getElementById('backToEnterFromPmpiran');
+        
+        let currentGroupName = '';
+        let userVotes = {};
+        let fruitsRendered = false;
+        let selectedFruits = [];
+
+        // Fruit data with emojis - 15 fruits for selection
+        const allFruits = [
+            { name: 'موز', emoji: '🍌' },
+            { name: 'سیب', emoji: '🍎' },
+            { name: 'بلوبری', emoji: '🫐' },
+            { name: 'آناناس', emoji: '🍍' },
+            { name: 'آووکادو', emoji: '🥑' },
+            { name: 'پرتقال', emoji: '🍊' },
+            { name: 'توت فرنگی', emoji: '🍓' },
+            { name: 'سیب سبز', emoji: '🍏' },
+            { name: 'کیوی', emoji: '🥝' },
+            { name: 'گیلاس', emoji: '🍒' },
+            { name: 'هندوانه', emoji: '🍉' },
+            { name: 'انگور', emoji: '🍇' },
+            { name: 'لیمو', emoji: '🍋' },
+            { name: 'خربزه', emoji: '🍈' },
+            { name: 'هلو', emoji: '🍑' }
+        ];
+        
+        // Allowed story points based on the user's request
+        const storyPoints = [1, 2, 3, 5, 8, 13, 20, 40, 100, 200];
+
+        // Tab switching logic
+        const switchTab = (tabId) => {
+            // غیرفعال کردن تب‌های مربوط به مراحل بعدی اگر کاربر هنوز به آن مرحله نرسیده
+            if (tabId === 'vote' && !fruitsRendered) {
+                return;
+            }
+            
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            const selectedTabButton = document.getElementById(`tab-${tabId}`);
+            if (selectedTabButton) {
+                selectedTabButton.classList.add('active');
+            }
+            const selectedTabContent = document.getElementById(`tab-content-${tabId}`);
+            if (selectedTabContent) {
+                selectedTabContent.classList.remove('hidden');
+            }
+        };
+
+        // فعال کردن تب
+        const enableTab = (tabId) => {
+            const tabButton = document.getElementById(`tab-${tabId}`);
+            if (tabButton) {
+                tabButton.classList.remove('disabled');
+            }
+        };
+
+        // Show temporary alert message
+        function showAlertMessage() {
+            alertMessage.style.display = 'block';
+            setTimeout(() => {
+                alertMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // Render fruit selection options
+        function renderFruitSelection() {
+            fruitSelection.innerHTML = '';
+            allFruits.forEach(fruit => {
+                const fruitOption = document.createElement('div');
+                fruitOption.className = 'fruit-option';
+                fruitOption.dataset.fruit = fruit.name;
+                
+                fruitOption.innerHTML = `
+                    <span class="selection-emoji">${fruit.emoji}</span>
+                    <span class="text-sm">${fruit.name}</span>
+                `;
+                
+                fruitOption.addEventListener('click', function() {
+                    toggleFruitSelection(fruit);
+                });
+                
+                fruitSelection.appendChild(fruitOption);
+            });
+        }
+        
+        // Toggle fruit selection
+        function toggleFruitSelection(fruit) {
+            const index = selectedFruits.findIndex(f => f.name === fruit.name);
+            
+            if (index === -1) {
+                if (selectedFruits.length < 10) { // تغییر از 15 به 10
+                    selectedFruits.push(fruit);
+                    document.querySelector(`.fruit-option[data-fruit="${fruit.name}"]`).classList.add('selected');
+                }
+            } else {
+                selectedFruits.splice(index, 1);
+                document.querySelector(`.fruit-option[data-fruit="${fruit.name}"]`).classList.remove('selected');
+            }
+            
+            // Update selection count
+            selectionCount.textContent = `${selectedFruits.length} میوه انتخاب شده از ۱۰ میوه`; // تغییر از 15 به 10
+            
+            // Enable/disable next button
+            nextToInfoButton.disabled = selectedFruits.length !== 10; // تغییر از 15 به 10
+        }
+
+        // Event Listeners
+        startButton.addEventListener('click', function() {
+            const groupName = groupNameInput.value.trim();
+            if (!groupName) {
+                showAlertMessage();
+                return;
+            }
+
+            currentGroupName = groupName;
+            displayGroupName.textContent = `نام گروه: ${currentGroupName}`;
+            displayGroupName2.textContent = `نام گروه: ${currentGroupName}`;
+            displayGroupName3.textContent = `نام گروه: ${currentGroupName}`;
+            displayGroupName4.textContent = `نام گروه: ${currentGroupName}`;
+
+            // غیرفعال کردن تب ورود
+            document.getElementById('tab-enter').classList.add('disabled');
+            
+            // Render fruit selection
+            renderFruitSelection();
+            
+            switchTab('scenario');
+        });
+
+        nextToInfoButton.addEventListener('click', function() {
+            if (selectedFruits.length !== 10) { // تغییر از 15 به 10
+                return;
+            }
+            switchTab('info');
+        });
+
+        nextToVoteButton.addEventListener('click', function() {
+            switchTab('vote');
+            if (!fruitsRendered) {
+                renderFruits();
+                fruitsRendered = true;
+                enableTab('vote');
+            }
+        });
+
+        submitVotesButton.addEventListener('click', function() {
+            if (!checkAllVoted()) {
+                showAlertMessage();
+                return;
+            }
+            
+            // جمع‌آوری رأی‌ها
+            userVotes = {};
+            document.querySelectorAll('.story-points-select').forEach(select => {
+                const fruitName = select.dataset.fruit;
+                userVotes[fruitName] = parseInt(select.value);
+            });
+            
+            // نمایش نتایج اولیه
+            displayResults(userVotes);
+            resultsSection.classList.remove('hidden');
+            
+            // نمایش تب نتایج نهایی
+            document.getElementById('tab-results').classList.remove('hidden');
+            enableTab('results');
+            switchTab('results');
+            
+            // نمایش نتایج نهایی و محاسبه مجموع
+            displayFinalResults(userVotes);
+        });
+
+        saveFinalImageButton.addEventListener('click', function() {
+            const container = document.querySelector('.container');
+            html2canvas(container).then(canvas => {
+                const imageURL = canvas.toDataURL('image/png');
+                
+                const a = document.createElement('a');
+                a.href = imageURL;
+                a.download = 'planning-poker-final-results.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            });
+        });
+
+        // Navigation event listeners
+        backToScenario.addEventListener('click', function() {
+            switchTab('scenario');
+        });
+
+        backToInfo.addEventListener('click', function() {
+            switchTab('info');
+        });
+
+        backToVote.addEventListener('click', function() {
+            switchTab('vote');
+        });
+
+        backToEnterFromPmpiran.addEventListener('click', function() {
+            switchTab('enter');
+        });
+
+        // Add event listeners to tab buttons
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.classList.contains('disabled')) {
+                    return;
+                }
+                const tabId = this.id.replace('tab-', '');
+                switchTab(tabId);
+            });
+        });
+
+        function renderFruits() {
+            fruitGrid.innerHTML = '';
+            selectedFruits.forEach(fruit => {
+                const fruitItem = document.createElement('div');
+                fruitItem.className = 'fruit-item unvoted';
+
+                // Create the select element for story points
+                const selectElement = document.createElement('select');
+                selectElement.className = 'story-points-select';
+                selectElement.dataset.fruit = fruit.name;
+                
+                // Add an event listener to handle voting
+                selectElement.addEventListener('change', function() {
+                    // Update the visual status of the fruit item
+                    if (selectElement.value !== '') {
+                         fruitItem.classList.remove('unvoted');
+                    } else {
+                         fruitItem.classList.add('unvoted');
+                    }
+                });
+
+                // Add a default, disabled option
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'SP';
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                selectElement.appendChild(defaultOption);
+
+                // Add options for each story point
+                storyPoints.forEach(point => {
+                    const option = document.createElement('option');
+                    option.value = point;
+                    option.textContent = point;
+                    selectElement.appendChild(option);
+                });
+
+                fruitItem.innerHTML += `
+                    <span class="fruit-emoji">${fruit.emoji}</span>
+                    <span class="mt-2 text-sm font-bold">${fruit.name}</span>
+                `;
+                fruitItem.appendChild(selectElement);
+                fruitGrid.appendChild(fruitItem);
+            });
+        }
+        
+        function checkAllVoted() {
+            const allSelects = document.querySelectorAll('.story-points-select');
+            for (let select of allSelects) {
+                if (select.value === "") {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function displayResults(votes) {
+            resultsContainer.innerHTML = '';
+            
+            selectedFruits.forEach(fruit => {
+                const fruitName = fruit.name;
+                const points = votes[fruitName] || 0;
+
+                const resultCard = document.createElement('div');
+                resultCard.className = 'result-card';
+
+                resultCard.innerHTML = `
+                    <span class="fruit-emoji text-5xl mb-2">${fruit.emoji}</span>
+                    <h4 class="font-bold text-xl mb-2">${fruitName}</h4>
+                    <span class="inline-block bg-gray-200 rounded-full px-4 py-2 text-2xl font-semibold text-gray-700">
+                        ${points}
+                    </span>
+                `;
+
+                resultsContainer.appendChild(resultCard);
+            });
+        }
+        
+        function displayFinalResults(votes) {
+            finalResultsContainer.innerHTML = '';
+            let totalPoints = 0;
+            
+            selectedFruits.forEach(fruit => {
+                const fruitName = fruit.name;
+                const points = votes[fruitName] || 0;
+                totalPoints += points;
+
+                const resultCard = document.createElement('div');
+                resultCard.className = 'result-card';
+
+                resultCard.innerHTML = `
+                    <span class="fruit-emoji text-5xl mb-2">${fruit.emoji}</span>
+                    <h4 class="font-bold text-xl mb-2">${fruitName}</h4>
+                    <span class="inline-block bg-green-100 rounded-full px-4 py-2 text-2xl font-semibold text-green-700">
+                        ${points}
+                    </span>
+                `;
+
+                finalResultsContainer.appendChild(resultCard);
+            });
+            
+            // نمایش مجموع امتیازات
+            totalPointsElement.textContent = totalPoints;
+        }
+    });
+</script>
+
 </body>
 </html>
