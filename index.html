@@ -299,6 +299,33 @@
             font-size: 2rem;
             margin-bottom: 0.5rem;
         }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            direction: rtl;
+        }
+        .report-table th, .report-table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            text-align: center;
+        }
+        .report-table th {
+            background-color: #f9fafb;
+            font-weight: bold;
+        }
+        .report-table tr:nth-child(even) {
+            background-color: #f3f4f6;
+        }
+        .download-btn {
+            background-color: #10b981;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -311,6 +338,7 @@
         <button id="tab-info" class="tab-button">برنامه‌ریزی پوکر</button>
         <button id="tab-vote" class="tab-button disabled">امتیاز دادن</button>
         <button id="tab-results" class="tab-button disabled hidden">نتایج</button>
+        <button id="tab-reports" class="tab-button">گزارش‌ها</button>
         <button id="tab-pmpiran" class="tab-button">PMPiran</button>
     </div>
 
@@ -464,6 +492,52 @@
             <button id="saveFinalImageButton" class="button-primary">
                 ذخیره نتایج نهایی
             </button>
+            <button id="saveToStorageButton" class="button-secondary">
+                ذخیره در گزارش‌ها
+            </button>
+        </div>
+    </div>
+
+    <div id="tab-content-reports" class="tab-content hidden">
+        <h2 class="text-3xl font-bold mb-6">گزارش نتایج رأی‌گیری</h2>
+        
+        <div class="bg-blue-50 p-6 rounded-xl mb-6">
+            <h3 class="text-xl font-bold mb-4">نتایج ذخیره شده</h3>
+            <p class="text-gray-700 text-right leading-relaxed mb-4">
+                در این بخش می‌توانید نتایج تمامی جلسات برنامه‌ریزی پوکر را مشاهده و مدیریت کنید.
+            </p>
+            
+            <div class="overflow-x-auto">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>تاریخ و زمان</th>
+                            <th>نام گروه</th>
+                            <th>امتیاز کل</th>
+                            <th>جزئیات</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTableBody">
+                        <!-- داده‌ها اینجا نمایش داده می‌شوند -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-6 flex justify-center gap-4">
+                <button id="clearAllReports" class="button-back">
+                    حذف همه گزارش‌ها
+                </button>
+                <button id="downloadReports" class="button-primary">
+                    دانلود گزارش
+                </button>
+            </div>
+        </div>
+        
+        <div class="navigation-buttons">
+            <button id="backToEnterFromReports" class="button-back">
+                بازگشت به صفحه اصلی
+            </button>
         </div>
     </div>
 
@@ -549,6 +623,7 @@
         const nextToVoteButton = document.getElementById('nextToVote');
         const submitVotesButton = document.getElementById('submitVotes');
         const saveFinalImageButton = document.getElementById('saveFinalImageButton');
+        const saveToStorageButton = document.getElementById('saveToStorageButton');
         const displayGroupName = document.getElementById('displayGroupName');
         const displayGroupName2 = document.getElementById('displayGroupName2');
         const displayGroupName3 = document.getElementById('displayGroupName3');
@@ -562,11 +637,15 @@
         const velocityInput = document.getElementById('velocityInput');
         const alertMessage = document.getElementById('alertMessage');
         const resultsSection = document.getElementById('resultsSection');
+        const reportsTableBody = document.getElementById('reportsTableBody');
+        const clearAllReports = document.getElementById('clearAllReports');
+        const downloadReports = document.getElementById('downloadReports');
         
         // Navigation buttons
         const backToScenario = document.getElementById('backToScenario');
         const backToInfo = document.getElementById('backToInfo');
         const backToVote = document.getElementById('backToVote');
+        const backToEnterFromReports = document.getElementById('backToEnterFromReports');
         const backToEnterFromPmpiran = document.getElementById('backToEnterFromPmpiran');
         
         let currentGroupName = '';
@@ -617,6 +696,11 @@
             if (selectedTabContent) {
                 selectedTabContent.classList.remove('hidden');
             }
+
+            // اگر تب گزارش‌ها است، گزارش‌ها را بارگذاری کن
+            if (tabId === 'reports') {
+                loadReports();
+            }
         };
 
         // فعال کردن تب
@@ -624,6 +708,7 @@
             const tabButton = document.getElementById(`tab-${tabId}`);
             if (tabButton) {
                 tabButton.classList.remove('disabled');
+                tabButton.classList.remove('hidden');
             }
         };
 
@@ -661,7 +746,7 @@
             const index = selectedFruits.findIndex(f => f.name === fruit.name);
             
             if (index === -1) {
-                if (selectedFruits.length < 10) { // تغییر از 15 به 10
+                if (selectedFruits.length < 10) {
                     selectedFruits.push(fruit);
                     document.querySelector(`.fruit-option[data-fruit="${fruit.name}"]`).classList.add('selected');
                 }
@@ -671,10 +756,10 @@
             }
             
             // Update selection count
-            selectionCount.textContent = `${selectedFruits.length} میوه انتخاب شده از ۱۰ میوه`; // تغییر از 15 به 10
+            selectionCount.textContent = `${selectedFruits.length} میوه انتخاب شده از ۱۰ میوه`;
             
             // Enable/disable next button
-            nextToInfoButton.disabled = selectedFruits.length !== 10; // تغییر از 15 به 10
+            nextToInfoButton.disabled = selectedFruits.length !== 10;
         }
 
         // Event Listeners
@@ -701,7 +786,7 @@
         });
 
         nextToInfoButton.addEventListener('click', function() {
-            if (selectedFruits.length !== 10) { // تغییر از 15 به 10
+            if (selectedFruits.length !== 10) {
                 return;
             }
             switchTab('info');
@@ -756,6 +841,27 @@
             });
         });
 
+        // ذخیره نتایج در localStorage
+        saveToStorageButton.addEventListener('click', function() {
+            const velocity = velocityInput.value ? parseInt(velocityInput.value) : 0;
+            saveResultsToStorage(currentGroupName, userVotes, totalPoints, velocity);
+            alert('نتایج با موفقیت در گزارش‌ها ذخیره شد.');
+        });
+
+        // پاک کردن همه گزارش‌ها
+        clearAllReports.addEventListener('click', function() {
+            if (confirm('آیا از حذف همه گزارش‌ها اطمینان دارید؟')) {
+                localStorage.removeItem('pokerPlanningReports');
+                loadReports();
+                alert('همه گزارش‌ها حذف شدند.');
+            }
+        });
+
+        // دانلود گزارش‌ها
+        downloadReports.addEventListener('click', function() {
+            downloadReportsAsCSV();
+        });
+
         // Navigation event listeners
         backToScenario.addEventListener('click', function() {
             switchTab('scenario');
@@ -767,6 +873,10 @@
 
         backToVote.addEventListener('click', function() {
             switchTab('vote');
+        });
+
+        backToEnterFromReports.addEventListener('click', function() {
+            switchTab('enter');
         });
 
         backToEnterFromPmpiran.addEventListener('click', function() {
@@ -887,7 +997,160 @@
             
             // نمایش مجموع امتیازات
             totalPointsElement.textContent = totalPoints;
+            return totalPoints;
         }
+
+        // ذخیره نتایج در localStorage
+        function saveResultsToStorage(groupName, votes, totalPoints, velocity) {
+            // دریافت گزارش‌های موجود
+            const reports = JSON.parse(localStorage.getItem('pokerPlanningReports')) || [];
+            
+            // ایجاد گزارش جدید
+            const newReport = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString('fa-IR'),
+                groupName: groupName,
+                votes: votes,
+                totalPoints: totalPoints,
+                velocity: velocity
+            };
+            
+            // افزودن گزارش جدید به لیست
+            reports.push(newReport);
+            
+            // ذخیره در localStorage
+            localStorage.setItem('pokerPlanningReports', JSON.stringify(reports));
+            
+            // بارگذاری مجدد گزارش‌ها
+            loadReports();
+        }
+
+        // بارگذاری گزارش‌ها از localStorage
+        function loadReports() {
+            const reports = JSON.parse(localStorage.getItem('pokerPlanningReports')) || [];
+            reportsTableBody.innerHTML = '';
+            
+            if (reports.length === 0) {
+                reportsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-4 text-gray-500">هیچ گزارشی یافت نشد.</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // نمایش گزارش‌ها به صورت معکوس (جدیدترین اول)
+            reports.reverse().forEach(report => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${report.timestamp}</td>
+                    <td>${report.groupName}</td>
+                    <td>${report.totalPoints}</td>
+                    <td>
+                        <button class="view-details-btn text-blue-500 hover:text-blue-700" data-id="${report.id}">
+                            مشاهده جزئیات
+                        </button>
+                    </td>
+                    <td>
+                        <button class="delete-report-btn text-red-500 hover:text-red-700" data-id="${report.id}">
+                            حذف
+                        </button>
+                    </td>
+                `;
+                
+                reportsTableBody.appendChild(row);
+            });
+            
+            // افزودن event listener برای دکمه‌ها
+            document.querySelectorAll('.view-details-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const reportId = parseInt(this.dataset.id);
+                    viewReportDetails(reportId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-report-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const reportId = parseInt(this.dataset.id);
+                    deleteReport(reportId);
+                });
+            });
+        }
+
+        // مشاهده جزئیات گزارش
+        function viewReportDetails(reportId) {
+            const reports = JSON.parse(localStorage.getItem('pokerPlanningReports')) || [];
+            const report = reports.find(r => r.id === reportId);
+            
+            if (!report) return;
+            
+            let detailsHtml = `
+                <h3 class="text-xl font-bold mb-4">جزئیات گزارش: ${report.groupName}</h3>
+                <p><strong>تاریخ:</strong> ${report.timestamp}</p>
+                <p><strong>امتیاز کل:</strong> ${report.totalPoints}</p>
+                <p><strong>تعداد سالاد (ولاسیتی):</strong> ${report.velocity || 'ثبت نشده'}</p>
+                <div class="mt-4">
+                    <h4 class="font-bold mb-2">امتیازهای میوه‌ها:</h4>
+                    <ul>
+            `;
+            
+            for (const [fruit, points] of Object.entries(report.votes)) {
+                detailsHtml += `<li>${fruit}: ${points} امتیاز</li>`;
+            }
+            
+            detailsHtml += `
+                    </ul>
+                </div>
+            `;
+            
+            alert(detailsHtml);
+        }
+
+        // حذف گزارش
+        function deleteReport(reportId) {
+            if (!confirm('آیا از حذف این گزارش اطمینان دارید؟')) return;
+            
+            const reports = JSON.parse(localStorage.getItem('pokerPlanningReports')) || [];
+            const filteredReports = reports.filter(r => r.id !== reportId);
+            
+            localStorage.setItem('pokerPlanningReports', JSON.stringify(filteredReports));
+            loadReports();
+            
+            alert('گزارش با موفقیت حذف شد.');
+        }
+
+        // دانلود گزارش‌ها به صورت CSV
+        function downloadReportsAsCSV() {
+            const reports = JSON.parse(localStorage.getItem('pokerPlanningReports')) || [];
+            
+            if (reports.length === 0) {
+                alert('هیچ گزارشی برای دانلود وجود ندارد.');
+                return;
+            }
+            
+            let csvContent = "تاریخ,نام گروه,امتیاز کل,تعداد سالاد\n";
+            
+            reports.forEach(report => {
+                csvContent += `"${report.timestamp}","${report.groupName}",${report.totalPoints},${report.velocity || ''}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            const date = new Date().toLocaleDateString('fa-IR');
+            
+            link.setAttribute("href", url);
+            link.setAttribute("download", `poker_reports_${date}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // فعال کردن تب گزارش‌ها
+        enableTab('reports');
     });
 </script>
 
