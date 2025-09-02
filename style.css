@@ -1,3 +1,4 @@
+/* فایل style.css */
 body {
     font-family: 'Inter', sans-serif;
     background-color: #f3f4f6;
@@ -361,4 +362,25 @@ body {
     border-radius: 0.5rem;
     border: none;
     cursor: pointer;
+}
+
+/* استایل‌های responsive برای صفحه کوچک */
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .tab-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .tab-button {
+        margin-bottom: 0.5rem;
+    }
+    
+    .fruit-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
 }
