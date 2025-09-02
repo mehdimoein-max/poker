@@ -3,16 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بازی برنامه‌ریزی پوکر سالاد میوه</title>
-    
-    <!-- لینک به فایل CSS -->
+    <title>بازی برنامه‌ریزی پوکر سالاد میوه - نسخه آنلاین</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTML2Canvas for image saving -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- محتوای HTML شما -->
+<div class="container">
+    <!-- Tab Navigation -->
+    <div class="tab-buttons">
+        <button id="tab-enter" class="tab-button active">ورود</button>
+        <button id="tab-scenario" class="tab-button">سناریو بازی</button>
+        <button id="tab-info" class="tab-button">برنامه‌ریزی پوکر</button>
+        <button id="tab-vote" class="tab-button disabled">امتیاز دادن</button>
+        <button id="tab-results" class="tab-button disabled hidden">نتایج</button>
+        <button id="tab-pmpiran" class="tab-button">PMPiran</button>
+    </div>
 
-<!-- لینک به فایل JavaScript -->
+    <!-- Tab Content -->
+    <div id="tab-content-enter" class="tab-content">
+        <h1 class="text-3xl font-bold mb-6">به بازی برنامه‌ریزی پوکر خوش آمدید!</h1>
+        
+        <div class="mb-4">
+            <p>برای شروع، نام خود و نام گروه را وارد کنید.</p>
+            <input type="text" id="userName" placeholder="نام شما" class="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            <input type="text" id="groupName" placeholder="نام گروه" class="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+        </div>
+        
+        <div id="onlineUsers" class="online-users hidden">
+            <h3 class="font-bold">اعضای آنلاین:</h3>
+            <div id="usersList" class="user-list"></div>
+            <button id="refreshUsers" class="refresh-btn">بروزرسانی لیست</button>
+        </div>
+        
+        <button id="startButton" class="button-primary w-full mt-4">
+            شروع بازی
+        </button>
+    </div>
+
+    <div id="tab-content-scenario" class="tab-content hidden">
+        <p id="displayGroupName" class="mb-4 text-gray-500"></p>
+        <h1 class="text-3xl font-bold mb-2">سناریوی بازی</h1>
+        <p class="mb-6 text-gray-700 leading-relaxed text-right">
+            در این بازی، شما و تیم‌تان باید با هم یک سالاد میوه درست کنید. هر میوه یک تسک یا "استوری" است. برای درست کردن سالاد، باید با هم برای هر میوه امتیاز داستان (Story Point) تعیین کنید. تیم شما باید تلاش لازم را تخمین زده و برای هر میوه توافق کند که چقدر استوری پوینت دارد.
+        </p>
+        
+        <div class="bg-yellow-50 p-4 rounded-xl mb-4">
+            <h3 class="text-xl font-bold mb-4 text-center">لطفاً ۱۰ میوه را برای سالاد خود انتخاب کنید:</h3>
+            <div class="fruit-selection" id="fruitSelection">
+                <!-- میوه‌ها برای انتخاب در اینجا نمایش داده می‌شوند -->
+            </div>
+            <p id="selectionCount" class="text-center mt-4 font-bold">0 میوه انتخاب شده از ۱۰ میوه</p>
+        </div>
+        
+        <div class="navigation-buttons">
+            <button id="nextToInfo" class="button-secondary" disabled>
+                ادامه
+            </button>
+        </div>
+    </div>
+
+    <!-- بقیه تب‌ها -->
+    <div id="tab-content-info" class="tab-content hidden">
+        <!-- محتوای تب اطلاعات -->
+    </div>
+
+    <div id="tab-content-vote" class="tab-content hidden">
+        <!-- محتوای تب امتیازدهی -->
+    </div>
+
+    <div id="tab-content-results" class="tab-content hidden">
+        <!-- محتوای تب نتایج -->
+    </div>
+
+    <div id="tab-content-pmpiran" class="tab-content hidden">
+        <!-- محتوای تب PMPiran -->
+    </div>
+
+    <div id="alertMessage" class="alert-message">
+        لطفا به همه میوه‌ها امتیاز بدهید.
+    </div>
+</div>
+
 <script src="script.js"></script>
 </body>
 </html>
